@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# Shiff
 #####################################################################################
 #
 # Tosca Execution Client for Bash
@@ -152,11 +152,11 @@ log() {
 
   local message="${currentDate} [${logLevel}] ${logMessage}"
 
-  # Create log folder if it does not exist  
-  if ( [ ! -d "${logFolderPath}" ] ) then 
+  # Create log folder if it does not exist
+  if ( [ ! -d "${logFolderPath}" ] ) then
     echo "${currentDate} [ERR] Directory \"${logFolderPath}\" does not exist. Try to create directory \"${logFolderPath}\"..."
     mkdir -p "${logFolderPath}"
-    if ( [ ! -d "${logFolderPath}" ] ) then 
+    if ( [ ! -d "${logFolderPath}" ] ) then
       echo "${currentDate} [ERR] Failed to create directory \"${logFolderPath}\"."
       echo "${currentDate} [INF] Stopping ToscaExecutionClient..."
       exit 1
@@ -190,7 +190,7 @@ log() {
 logErrorsFromStdIn() {
   # pass stdin as error to logger function
   local line="$(cat -)"
-  
+
   if ( [ ! -z "${line}" ] ) then
     log "ERR" "${line}"
   fi
@@ -228,7 +228,7 @@ logCurlRequesErrors() {
 #   Nothing
 #######################################
 function fetchOrRefreshAccessToken() {
-  
+
   # Only fetch token if credentials are provided, no token exists or expiration is close
   if ( [ "${authenticationEnabled}" == "true" ] && [ $(date +%s) -ge ${tokenExpirationDate} ] ) then
     log "INF" "Fetching access token with provided credentials..."
@@ -256,7 +256,7 @@ function fetchOrRefreshAccessToken() {
     # Log collected request errors and remove temp file
     logCurlRequesErrors
 
-    if ( [ -f "${tmpFilePath}" ] ) then 
+    if ( [ -f "${tmpFilePath}" ] ) then
       rm "${tmpFilePath}" 2> >(logErrorsFromStdIn)
     fi
 
@@ -306,7 +306,7 @@ function fetchOrRefreshAccessToken() {
 #######################################
 function enqueueExecution() {
   local enqueueParameters="{\"ExecutionEnvironment\": \"${executionEnvironment}\", \"ProjectName\": \"${projectName}\", \"Events\": ${events}, \"ImportResult\": ${importResults}, \"Creator\": \"${creator}\"}"
-  
+
   log "INF" "Enqueue execution with provided parameters..."
 
   if ( [ "${debug}" == "true" ] ) then
@@ -338,7 +338,7 @@ function enqueueExecution() {
   # Log collected request errors and remove temp file
   logCurlRequesErrors
 
-  if ( [ -f "${tmpFilePath}" ] ) then 
+  if ( [ -f "${tmpFilePath}" ] ) then
     rm "${tmpFilePath}" 2> >(logErrorsFromStdIn)
   fi
 
@@ -414,7 +414,7 @@ function fetchExecutionStatus() {
   # Log collected request errors and remove temp file
   logCurlRequesErrors
 
-  if ( [ -f "${tmpFilePath}" ] ) then 
+  if ( [ -f "${tmpFilePath}" ] ) then
     rm "${tmpFilePath}" 2> >(logErrorsFromStdIn)
  fi
 
@@ -471,7 +471,7 @@ function fetchExecutionResults() {
   log "INF" "Fetching results for execution with id \"${executionId}\"..."
 
   fetchOrRefreshAccessToken
-  
+
   local response=$(
     curl \
       --location \
@@ -492,7 +492,7 @@ function fetchExecutionResults() {
   # Log collected request errors and remove temp file
   logCurlRequesErrors
 
-  if ( [ -f "${tmpFilePath}" ] ) then 
+  if ( [ -f "${tmpFilePath}" ] ) then
     rm "${tmpFilePath}" 2> >(logErrorsFromStdIn)
  fi
 
@@ -513,7 +513,7 @@ function fetchExecutionResults() {
     if ( [ "${responseStatus}" == 200 ] ) then
       log "INF" "Sucessfully fetched results for execution with id \"${executionId}\"."
       executionResults="${responseBody}"
-    # Not all results are available (E.g. cancelled events, configuration errors) 
+    # Not all results are available (E.g. cancelled events, configuration errors)
     elif ( [ "${responseStatus}" == 206 ] ) then
       log "WRN" "Not all execution results have been returned for execution with id \"${executionId}\". Check AOS, DEX Server and DEX agent logs."
       executionResults="${responseBody}"
@@ -568,11 +568,11 @@ function writeResults() {
       log "INF" "Writing results for execution with id \"${executionId}\" to file \"${resultsFilePath}\"..."
     fi
 
-    # Create results folder if it does not exist  
-    if ( [ ! -d "${folderPath}" ] ) then 
+    # Create results folder if it does not exist
+    if ( [ ! -d "${folderPath}" ] ) then
       log "INF" "Directory \"${folderPath}\" does not exist. Try to create directory \"${folderPath}\"..."
       mkdir -p "${folderPath}"
-      if ( [ ! -d "${folderPath}" ] ) then 
+      if ( [ ! -d "${folderPath}" ] ) then
         log "ERR" "Failed to create directory \"${folderPath}\"."
         log "INF" "Stopping ToscaExecutionClient..."
         exit 1
@@ -592,7 +592,7 @@ function writeResults() {
 
 # Parse parameters
 while [[ "$#" > 0 ]]; do case ${1} in
-  # Mandatory parameters 
+  # Mandatory parameters
   --toscaServerUrl) toscaServerUrl="${2}"; shift;shift;;
   --executionEnvironment) executionEnvironment="${2}"; shift;shift;;
   --projectName) projectName="${2}"; shift;shift;;
@@ -625,9 +625,9 @@ while [[ "$#" > 0 ]]; do case ${1} in
 esac; done
 
 # Verify mandatory parameters
-if ( [ -z "${toscaServerUrl}" ] ) then 
+if ( [ -z "${toscaServerUrl}" ] ) then
   log "ERR" "Mandatory parameter \"toscaServerUrl\" is not set."
-elif ( [ -z "${projectName}" ] && [ -z "${fetchResultsOnly}" ] ) then 
+elif ( [ -z "${projectName}" ] && [ -z "${fetchResultsOnly}" ] ) then
   log "ERR" "Mandatory parameter \"projectName\" is not set."
 elif ( [ -z "${events}" ] && [ -z "${eventsConfigFilePath}" ] && [ -z "${fetchResultsOnly}" ] ) then
   log "ERR" "Event configuration is missing. Define either \"events\" or \"eventsConfigFilePath\"."
@@ -638,13 +638,13 @@ fi
 # Skip enqueue call if fetchResultsOnlyOption is given
 if ( [ "${validationFailed}" == "true" ] ) then
   displayHelp
-  exit 1    
+  exit 1
 fi
 
 log "INF" "Starting ToscaExecutionClient..."
 
 # Remove temp file
-if ( [ -f "${tmpFilePath}" ] ) then 
+if ( [ -f "${tmpFilePath}" ] ) then
   rm "${tmpFilePath}" 2> >(logErrorsFromStdIn)
 fi
 
@@ -668,15 +668,15 @@ fi
 
 # Skip enqueue call if fetchResultsOnlyOption is given
 if ( [ "${fetchResultsOnly}" == "true" ] ) then
-  log "INF" "Option fetchResultsOnly is activated."    
+  log "INF" "Option fetchResultsOnly is activated."
 else
   # Enqueue execution
   enqueueExecution
 
-  # Skip fetching of execution results when enqueueOnlyOption is given 
+  # Skip fetching of execution results when enqueueOnlyOption is given
   if ( [ "${enqueueOnly}" == "true" ] ) then
     log "INF" "Option enqueueOnly is activated."
-    log "INF" "Enqueing execution has sucessfully finished" 
+    log "INF" "Enqueing execution has sucessfully finished"
     log "INF" "Stopping ToscaExecutionClient..."
     exit 0
   fi
@@ -684,7 +684,7 @@ fi
 
 # Handle missing execution id
 if ( [ -z "${executionId}" ] ) then
-  log "ERR" "ExecutionId is missing or empty." 
+  log "ERR" "ExecutionId is missing or empty."
   log "INF" "Stopping ToscaExecutionClient..."
   exit 1
 fi
@@ -716,10 +716,10 @@ done
 # Check for execution status after results polling
 if ( [[ "${executionStatus}" == *"Completed"* ]] || [[ "${executionStatus}" == "Error" ]] || [[ "${executionStatus}" == "Cancelled" ]] ) then
   log "INF" "Execution with id \"${executionId}\" finished."
-  
+
   # Fetch results when execution is finished
   fetchExecutionResults "false"
-  
+
   # Write execution results
   writeResults "false"
   log "INF" "Stopping ToscaExecutionClient..."
